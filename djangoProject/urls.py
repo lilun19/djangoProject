@@ -18,9 +18,10 @@ from django.urls import path
 from django.conf.urls import url
 from demo import views
 from . import view
-
+import xadmin
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^xadmin/',xadmin.site.urls),
     #精确匹配
     path('page/<year>/<month>', views.home),
     url(r'^$', view.hello),
