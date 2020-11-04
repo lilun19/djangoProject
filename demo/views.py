@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
-
+from demo.models import Test
 
 # Create your views here.
 
@@ -26,3 +26,8 @@ def home1(request, year='2020', month='11'):
 
 def hom(request):
     return render(request, 'home.html')
+
+def testdb(request):
+    user=Test(name='yoyo')
+    user.save()
+    return HttpResponse('数据库添加name成功')

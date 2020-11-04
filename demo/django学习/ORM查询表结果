@@ -1,0 +1,156 @@
+django查询数据库的方法很多，不同的方法返回的结果也不太一样，本篇详细讲解关于查询的13个方法
+
+返回对象是对象列表的: all(), filter(), exclude(), order_by(), reverse(), values(), values_list(), distinct()
+返回结果是对象: get(), first(), last()
+返回结果是布尔值: exists()
+返回数字： count()
+数据准备
+接着前面的User表，测试数据如下
+
+user_name	psw	mail
+yoyo	123456	283340479@qq.com
+yoyo2	111111	1
+yoyo5	111111	0
+可迭代对象queryset
+查询整张表sql : select * from hello_user
+django里面查询数据库不需要写sql语句 ret=表的类名称.objects.all() 返回的是整个表的内容， 这里返回的是可迭代对象queryset，并没直接返回全部数据
+如果想取出数据，需要用到for循环读取
+
+from django.http import HttpResponse
+from hello.models import User
+
+def slec_all(request):
+    ‘’‘取出User表里面user_name 、psw 、mail全部数据’‘’
+    users = ""
+    psws = ""
+    mails = ""
+    ret = User.objects.all()
+
+    # 返回queryset对象，可迭代
+    for i in ret:
+        users += " " + i.user_name  # 获取user_name字段
+        psws += " " + i.psw         # 获取psw字段
+        mails += " " + i.mail         # 获取mail字段
+
+    return HttpResponse('''<p>查询user结果：%s</p>
+                        <p>查询psw结果：%s</p>
+                        <p>查询psw结果：%s</p>''' % (users, psws, mails))
+在urls.py配置访问地址 url(r'^slec_all$', testdb.slec_all),访问后得到的结果
+查询user结果： yoyo yoyo2 yoyo5
+
+查询psw结果： 123456 111111 111111
+
+查询psw结果： 283340479@qq.com 1 0
+
+
+
+筛选条件filter()
+查询的时候添加删除条件，类似于SQL里面的where语句
+
+select * from hello_user where user_name = "yoyo" and psw ="123456"
+
+filter()查询的结果是可迭代对象，如果结果只有一个，可以通过下标取值。找不到的时候给个默认值null
+
+from django.http import HttpResponse
+from hello.models import User
+
+def sele_filter(request):
+    '''获取user_name="yoyo" and psw="123456"对应的mail值
+    查找为空时，返回null'''
+    r = ""
+    ret = User.objects.filter(user_name="yoyo",
+                              psw="123456")
+    try:
+        r = ret[0].mail
+    except:
+        r = "null"
+    return HttpResponse('<p>查询结果：%s</p>'%r)
+在urls.py配置访问地址 url(r'^sele_filter$', testdb.sele_filter),访问后得到的结果: 查询结果：283340479@qq.com
+
+可迭代的字典序列values()
+all()和filter()返回的都是可迭代的queryset序列，平常我们习惯获取字典的对象，可以用values()方法获取
+User.objects.all().values("user_name", "mail") 类似于SQL语句
+
+select user_name, psw from hello_user
+
+def sele_values(request):
+    '''可迭代的字典序列'''
+    r = ""
+    ret = User.objects.all().values("user_name", "mail")
+    for i in ret:
+        r += str(i)
+    return HttpResponse('<p>查询结果：%s</p>'%r)
+在urls.py配置访问地址 url(r'^sele_values$', testdb.sele_values),访问后得到的结果
+查询结果：{'user_name': 'yoyo', 'mail': '283340479@qq.com'}{'user_name': 'yoyo2', 'mail': '1'}{'user_name': 'yoyo5', 'mail': '0'}
+
+其它可迭代对象
+exclude() 它包含了与所给筛选条件不匹配的对象 调用者：objects管理器 返回queryset
+查找用户名不是"yoyo"的数据
+et=User.objects.exclude(user_name="yoyo")
+
+order_by() 对查询结果排序 由queryset对象调用，返回值是queryset
+查询所有的数据，按mail字段排序，默认升序
+ret=User.objects.all().order_by("mail")
+查询所有的数据，按mail字段排序，前面加个-是代表降序
+ret=User.objects.all().order_by("-mail")
+
+如果有‘-’则代表着降序，没有则默认升序
+
+reverse() 对查询结果反向排序 由queryset对象调用,返回值是queryset
+查询所有的数据，按mail字段排序，默认升序，查询结果反向排序，功能跟-mail一样
+ret=User.objects.all().order_by("mail").reverse()
+
+values_list() 由queryset对象调用, 返回值是queryset 一个元组序列
+和values差不多，只是这里返回的是元组
+ret=User.objects.all().values_list("user_name", "mail")
+
+distinct() 从返回结果中剔除重复纪录 由queryset对象调用,返回值是queryset
+和sql里面的distinct去重一样
+ret=User.objects.all().values("user_name", "mail").distinct()
+
+get()返回单个对象
+django的get是从数据库的取得唯一个匹配的结果，返回一个对象。调用者：objects管理器 返回查询到model对象 (注意：查询结果有且只有一个才执行)
+如果查询结果有多个，会报错MultipleObjectsReturned， 如果查询结果有0个，会报错DoesNotExist
+
+from django.http import HttpResponse
+from hello.models import User
+
+def sele_get(request):
+    '''get返回唯一的查询结果'''
+    r = ""
+    ret = User.objects.get(user_name="yoyo")
+    r = ret.user_name + ret.mail
+    return HttpResponse('<p>查询结果：%s</p>'%r)
+在urls.py配置访问地址 url(r'^sele_get$', testdb.sele_get),访问后得到的结果
+查询结果：yoyo283340479@qq.com
+
+first()和last()
+first(),last()方法: 返回第一条记录和返回最后一条记录 调用者：queryset 返回model对象
+
+from django.http import HttpResponse
+from hello.models import User
+
+
+def sele_first_last(request):
+    '''查询第一个和最后一个记录'''
+    # fir = User.objects.all().order_by("mail")[0]
+    fir = User.objects.all().order_by("mail").first()
+    f = fir.mail
+
+    las = User.objects.all().order_by("mail").last()
+    l = las.mail
+    return HttpResponse('<p>查询第一个结果：%s</p> <p>查询最后结果：%s</p>' % (f, l))
+在urls.py配置访问地址 url(r'^sele_first_last$', testdb.sele_first_last),访问后得到的结果
+查询第一个结果：0
+查询最后结果：283340479@qq.com
+
+exists()和count()
+exists() 如果QuerySet包含数据，就返回True，否则返回False 由queryset对象调用 返回值布尔值
+
+exists: 由queryset对象调用 返回值布尔值
+is_exist=User.objects.all().exists()
+
+count : 数数 由queryset对象调用 返回int
+
+count :数数 ：由queryset对象调用 返回int
+ret=User.objects.all().count()

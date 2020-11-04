@@ -1,0 +1,39 @@
+# Django 模板标签
+# if/else 标签
+# 条件判断if语句，最后endif结束
+#
+# {% if condition1 %}
+#    ... display 1
+# {% elif condition2 %}
+#    ... display 2
+# {% else %}
+#    ... display 3
+# {% endif %}
+# for 标签
+# 与Python的 for 语句的情形类似，循环语法是 for X in Y ，Y是要迭代的序列而X是在每一个特定的循环中使用的变量名称。
+#
+# 每一次循环中，模板系统会渲染在 {% for %} 和 {% endfor %} 之间的所有内容。
+#
+# <ul>
+# {% for athlete in athlete_list %}
+#     <li>{{ athlete.name }}</li>
+# {% endfor %}
+# </ul>
+# ifequal/ifnotequal 标签
+# {% ifequal %} 标签比较两个值，当他们相等时，显示在 {% ifequal %} 和 {% endifequal %} 之中所有的值。
+# 下面的例子比较两个模板变量 user 和 currentuser :
+#
+# {% ifequal user currentuser %}
+#     <h1>Welcome!</h1>
+# {% endifequal %}
+# 和 {% if %} 类似， {% ifequal %} 支持可选的 {% else%} 标签
+#
+# {% ifequal section 'sitenews' %}
+#     <h1>Site News</h1>
+# {% else %}
+#     <h1>No News Here</h1>
+# {% endifequal %}
+# 注释标签
+# Django 注释使用 {# #}。
+#
+# {# 这是一个注释 #}

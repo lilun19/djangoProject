@@ -34,5 +34,6 @@ urlpatterns = [
     # ^ 匹配开始
     # $ 匹配结束
     url(r'^page/(?P<year>[0-9]{4})/(?P<month>[0-9]{1，2}).html$', views.home1),
-    url('hom/',views.hom,name='home_page')
+    url('hom/',views.hom,name='home_page'),
+    url(r'^testdb$',views.testdb)
 ]
