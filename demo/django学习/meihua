@@ -1,0 +1,47 @@
+最近学django,看到不少教程里面models.py里面建表，写一个类的时候，习惯上加个__str__ ，开始不太明白，简单的实践后才知道是为了美化类实例的打印内容。
+python3 里面用__str__ ，python2里面用__unicode__
+
+写个类
+先写个简单的类，实例化后打印实例的结果
+
+class Person():
+    def __init__(self):
+        self.name = "张三"
+
+if __name__ == '__main__':
+    a = Person()
+    print(a)
+
+打印结果：<main.Person object at 0x0000000001E79828>
+
+这个实例化后的结果显示.Person object 显示的内容看不懂，为了美化输出，可以加个__str__方法
+
+__str__作用
+class Person():
+    def __init__(self):
+        self.name = "张三"
+
+    def __str__(self):
+        return self.name
+
+if __name__ == '__main__':
+    a = Person()
+    print(a)
+打印结果：张三
+
+__doc__作用
+如果想让它返回docstring里面的内容，可以return self.doc
+
+class Person():
+    '''用户信息表'''
+
+    def __init__(self):
+        self.name = "张三"
+
+    def __str__(self):
+        return self.__doc__
+
+if __name__ == '__main__':
+    a = Person()
+    print(a)
+打印结果：用户信息表
